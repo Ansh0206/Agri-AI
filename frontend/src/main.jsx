@@ -74,6 +74,29 @@ const timeline = [
   "Final report, screenshots, and demo video",
 ];
 
+const executionSteps = [
+  {
+    agent: "Disease Agent",
+    task: "Analyze symptom text and crop image input",
+    file: "services/disease_agent.py",
+  },
+  {
+    agent: "Weather Agent",
+    task: "Check district-level weather risk",
+    file: "services/weather_agent.py",
+  },
+  {
+    agent: "Market Agent",
+    task: "Estimate mandi price signal",
+    file: "services/market_agent.py",
+  },
+  {
+    agent: "Orchestrator",
+    task: "Merge agent outputs into one advisory",
+    file: "orchestrator.py",
+  },
+];
+
 function App() {
   const [selectedCrop, setSelectedCrop] = useState("Tomato");
   const [district, setDistrict] = useState("Nashik");
@@ -120,6 +143,8 @@ function App() {
       priority: "medium",
     },
   ];
+
+  const completedAgents = new Set(advisoryResponse?.agent_results.map((result) => result.agent) ?? []);
 
   async function generateAdvisory() {
     setIsLoading(true);
@@ -309,6 +334,31 @@ function App() {
                 ))}
               </div>
             )}
+          </div>
+        </div>
+
+        <div className="execution-panel">
+          <div className="panel-heading">
+            <span>Agent Execution Timeline</span>
+            <strong>{advisoryResponse ? "Completed" : isLoading ? "Running" : "Waiting"}</strong>
+          </div>
+          <div className="execution-steps">
+            {executionSteps.map((step, index) => {
+              const isComplete = step.agent === "Orchestrator" ? Boolean(advisoryResponse) : completedAgents.has(step.agent);
+              const status = isComplete ? "complete" : isLoading ? "running" : "pending";
+
+              return (
+                <article className={`execution-step ${status}`} key={step.agent}>
+                  <div className="step-index">{String(index + 1).padStart(2, "0")}</div>
+                  <div>
+                    <span>{status}</span>
+                    <h3>{step.agent}</h3>
+                    <p>{step.task}</p>
+                    <small>{step.file}</small>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
