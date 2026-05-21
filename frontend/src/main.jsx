@@ -107,15 +107,18 @@ function App() {
   const [diseaseResult, setDiseaseResult] = useState(null);
   const [weatherRisk, setWeatherRisk] = useState(null);
   const [marketPrice, setMarketPrice] = useState(null);
+  const [localAdvice, setLocalAdvice] = useState(null);
   const [advisoryResponse, setAdvisoryResponse] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
   const [isCheckingWeather, setIsCheckingWeather] = useState(false);
   const [isCheckingMarket, setIsCheckingMarket] = useState(false);
+  const [isGettingLocalAdvice, setIsGettingLocalAdvice] = useState(false);
   const [error, setError] = useState("");
   const [imageError, setImageError] = useState("");
   const [weatherError, setWeatherError] = useState("");
   const [marketError, setMarketError] = useState("");
+  const [localAdviceError, setLocalAdviceError] = useState("");
 
   const fallbackAdvisory = useMemo(() => {
     const crop = selectedCrop.toLowerCase();
@@ -309,6 +312,41 @@ function App() {
     }
   }
 
+  async function getLocalAdvice() {
+    setIsGettingLocalAdvice(true);
+    setLocalAdviceError("");
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/voice/advice", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          crop: selectedCrop,
+          district,
+          language,
+          question,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Local advisory endpoint returned an error. Check FastAPI terminal.");
+      }
+
+      const data = await response.json();
+      setLocalAdvice(data);
+    } catch (apiError) {
+      setLocalAdviceError(
+        apiError instanceof Error
+          ? apiError.message
+          : "Could not get local advice. Make sure FastAPI is running on port 8000.",
+      );
+    } finally {
+      setIsGettingLocalAdvice(false);
+    }
+  }
+
   return (
     <main className="app-shell">
       <nav className="topbar">
@@ -409,15 +447,21 @@ function App() {
                 </select>
               </label>
             </div>
-            <label>
-              Language
-              <select value={language} onChange={(event) => setLanguage(event.target.value)}>
-                <option>English</option>
-                <option>Hindi</option>
-                <option>Marathi</option>
-                <option>Tamil</option>
-              </select>
-            </label>
+            <div className="language-toggle">
+              <span>Language</span>
+              <div>
+                {["English", "Hindi"].map((option) => (
+                  <button
+                    className={language === option ? "active" : ""}
+                    key={option}
+                    type="button"
+                    onClick={() => setLanguage(option)}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </div>
             <label>
               Farmer question
               <textarea value={question} onChange={(event) => setQuestion(event.target.value)} />
@@ -538,6 +582,29 @@ function App() {
                 {isCheckingMarket ? "Checking Market..." : "Check Market Price"}
               </button>
               {marketError && <p className="error-message">{marketError}</p>}
+            </div>
+            <div className="local-advice-widget">
+              <div>
+                <span>Local Advisory Agent</span>
+                <strong>{localAdvice ? localAdvice.language : language}</strong>
+              </div>
+              {localAdvice ? (
+                <>
+                  <p>{localAdvice.answer}</p>
+                  <div className="local-points">
+                    {localAdvice.key_points.map((point) => (
+                      <span key={point}>{point}</span>
+                    ))}
+                  </div>
+                  <small>{Math.round(localAdvice.confidence * 100)}% confidence</small>
+                </>
+              ) : (
+                <p>Generate a simple farmer-friendly answer in English or Hindi from the question above.</p>
+              )}
+              <button className="secondary-button" type="button" onClick={getLocalAdvice} disabled={isGettingLocalAdvice}>
+                {isGettingLocalAdvice ? "Getting Advice..." : "Get Local Advice"}
+              </button>
+              {localAdviceError && <p className="error-message">{localAdviceError}</p>}
             </div>
             <button className="generate-button" type="button" onClick={generateAdvisory} disabled={isLoading}>
               {isLoading ? "Calling FastAPI..." : "Generate Advisory"}

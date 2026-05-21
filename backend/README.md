@@ -21,6 +21,7 @@ uvicorn main:app --reload --host 127.0.0.1 --port 8000
 - `POST /disease/analyze` image upload disease analysis response
 - `POST /weather/risk` district weather risk response
 - `POST /market/prices` mandi price trend response
+- `POST /voice/advice` English/Hindi local advisory response
 
 ## Backend Structure
 

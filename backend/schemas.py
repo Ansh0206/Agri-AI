@@ -84,3 +84,19 @@ class MarketPriceResponse(BaseModel):
     change_percent: float
     advice: str
     price_history: list[PricePoint]
+
+
+class LocalAdviceRequest(BaseModel):
+    crop: str = Field(default="Tomato", min_length=2, max_length=50)
+    district: str = Field(default="Nashik", min_length=2, max_length=80)
+    language: Literal["English", "Hindi"] = "English"
+    question: str = Field(default="", max_length=500)
+
+
+class LocalAdviceResponse(BaseModel):
+    crop: str
+    district: str
+    language: Literal["English", "Hindi"]
+    answer: str
+    key_points: list[str]
+    confidence: float

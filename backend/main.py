@@ -6,12 +6,15 @@ from schemas import (
     AdvisoryRequest,
     AdvisoryResponse,
     DiseaseAnalysisResponse,
+    LocalAdviceRequest,
+    LocalAdviceResponse,
     MarketPriceRequest,
     MarketPriceResponse,
     WeatherRiskRequest,
     WeatherRiskResponse,
 )
 from services.disease_agent import analyze_crop_image
+from services.local_advice_agent import generate_local_advice
 from services.market_agent import analyze_market_price
 from services.weather_agent import analyze_weather_risk
 
@@ -132,3 +135,13 @@ def weather_risk(request: WeatherRiskRequest) -> WeatherRiskResponse:
 @app.post("/market/prices", response_model=MarketPriceResponse)
 def market_prices(request: MarketPriceRequest) -> MarketPriceResponse:
     return analyze_market_price(crop=request.crop, district=request.district)
+
+
+@app.post("/voice/advice", response_model=LocalAdviceResponse)
+def local_advice(request: LocalAdviceRequest) -> LocalAdviceResponse:
+    return generate_local_advice(
+        crop=request.crop,
+        district=request.district,
+        language=request.language,
+        question=request.question,
+    )

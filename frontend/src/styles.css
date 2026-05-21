@@ -357,6 +357,36 @@ label {
   font-weight: 800;
 }
 
+.language-toggle {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+  color: #415246;
+  font-weight: 800;
+}
+
+.language-toggle > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.language-toggle button {
+  min-height: 46px;
+  border: 1px solid rgba(30, 107, 62, 0.22);
+  border-radius: 8px;
+  color: #1e6b3e;
+  background: #fffefa;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.language-toggle button.active {
+  color: #ffffff;
+  background: #1e6b3e;
+  box-shadow: 0 10px 22px rgba(30, 107, 62, 0.18);
+}
+
 select,
 textarea {
   width: 100%;
@@ -457,7 +487,8 @@ textarea {
 
 .disease-card,
 .weather-widget,
-.market-widget {
+.market-widget,
+.local-advice-widget {
   margin-top: 14px;
   border: 1px solid rgba(30, 107, 62, 0.18);
   border-radius: 8px;
@@ -475,9 +506,15 @@ textarea {
   border-color: rgba(210, 138, 29, 0.26);
 }
 
+.local-advice-widget {
+  background: #fff3f7;
+  border-color: rgba(196, 79, 108, 0.2);
+}
+
 .disease-card > div:first-child,
 .weather-widget > div:first-child,
-.market-widget > div:first-child {
+.market-widget > div:first-child,
+.local-advice-widget > div:first-child {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -486,7 +523,8 @@ textarea {
 
 .disease-card span,
 .weather-widget span,
-.market-widget span {
+.market-widget span,
+.local-advice-widget span {
   color: #2f7a47;
   font-size: 0.78rem;
   font-weight: 900;
@@ -501,6 +539,10 @@ textarea {
   color: #a46812;
 }
 
+.local-advice-widget span {
+  color: #b33f5e;
+}
+
 .disease-card h3 {
   margin: 16px 0 8px;
   color: #17221a;
@@ -508,22 +550,40 @@ textarea {
 
 .disease-card p,
 .weather-widget p,
-.market-widget p {
+.market-widget p,
+.local-advice-widget p {
   color: #526257;
   line-height: 1.55;
 }
 
 .weather-widget p,
-.market-widget p {
+.market-widget p,
+.local-advice-widget p {
   margin: 14px 0 8px;
 }
 
 .weather-widget > small,
-.market-widget > small {
+.market-widget > small,
+.local-advice-widget > small {
   display: block;
   color: #354a3a;
   font-weight: 800;
   line-height: 1.5;
+}
+
+.local-points {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.local-points span {
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.7);
+  color: #4f5d52;
+  font-size: 0.86rem;
+  text-transform: none;
 }
 
 .market-price-row {
