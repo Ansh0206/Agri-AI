@@ -19,6 +19,21 @@ uvicorn main:app --reload --host 127.0.0.1 --port 8000
 - `GET /agents` available agent modules
 - `POST /advisory` mock orchestrator advisory response
 
+## Backend Structure
+
+```text
+backend/
+├── main.py                  FastAPI routes and CORS setup
+├── schemas.py               Pydantic request/response models
+├── orchestrator.py          Combines specialist agent outputs
+└── services/
+    ├── disease_agent.py     Crop symptom and disease-risk logic
+    ├── weather_agent.py     Weather-risk advisory logic
+    └── market_agent.py      Mandi price signal logic
+```
+
+The frontend calls `/advisory`. FastAPI sends the request to the orchestrator. The orchestrator runs the disease, weather, and market agents, then merges their outputs into one farmer advisory.
+
 ## Example Advisory Request
 
 ```json
@@ -29,4 +44,3 @@ uvicorn main:app --reload --host 127.0.0.1 --port 8000
   "question": "My tomato leaves have yellow spots. What should I do?"
 }
 ```
-

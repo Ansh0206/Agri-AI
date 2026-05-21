@@ -78,8 +78,12 @@ function App() {
   const [selectedCrop, setSelectedCrop] = useState("Tomato");
   const [district, setDistrict] = useState("Nashik");
   const [language, setLanguage] = useState("English");
+  const [question, setQuestion] = useState("My tomato leaves have yellow spots. What should I do?");
+  const [advisoryResponse, setAdvisoryResponse] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const advisory = useMemo(() => {
+  const fallbackAdvisory = useMemo(() => {
     const crop = selectedCrop.toLowerCase();
     return {
       title: `${selectedCrop} advisory for ${district}`,
@@ -90,6 +94,67 @@ function App() {
           : `Run disease, weather, and market agents together before making a ${crop} decision in ${district}.`,
     };
   }, [district, selectedCrop]);
+
+  const advisory = advisoryResponse
+    ? {
+        title: `${advisoryResponse.crop} advisory for ${advisoryResponse.district}`,
+        confidence: `${Math.round(advisoryResponse.overall_confidence * 100)}%`,
+        summary: advisoryResponse.summary,
+      }
+    : fallbackAdvisory;
+
+  const recommendations = advisoryResponse?.recommendations ?? [
+    {
+      title: "Next action",
+      detail: "Upload image and verify symptoms",
+      priority: "high",
+    },
+    {
+      title: "Market signal",
+      detail: "Hold for 2-3 days if storage is available",
+      priority: "medium",
+    },
+    {
+      title: "Weather risk",
+      detail: "High humidity tomorrow evening",
+      priority: "medium",
+    },
+  ];
+
+  async function generateAdvisory() {
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/advisory", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          crop: selectedCrop,
+          district,
+          language,
+          question,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Backend returned an error. Check FastAPI terminal.");
+      }
+
+      const data = await response.json();
+      setAdvisoryResponse(data);
+    } catch (apiError) {
+      setError(
+        apiError instanceof Error
+          ? apiError.message
+          : "Could not connect to backend. Make sure FastAPI is running on port 8000.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   return (
     <main className="app-shell">
@@ -202,37 +267,48 @@ function App() {
             </label>
             <label>
               Farmer question
-              <textarea defaultValue="My tomato leaves have yellow spots. What should I do?" />
+              <textarea value={question} onChange={(event) => setQuestion(event.target.value)} />
             </label>
             <div className="upload-box">
               <span>+</span>
               <p>Upload crop image for disease detection</p>
               <small>JPG, PNG, or phone camera image</small>
             </div>
+            <button className="generate-button" type="button" onClick={generateAdvisory} disabled={isLoading}>
+              {isLoading ? "Calling FastAPI..." : "Generate Advisory"}
+            </button>
+            {error && <p className="error-message">{error}</p>}
           </div>
 
           <div className="panel result-panel">
             <div className="panel-heading">
               <span>Orchestrator Output</span>
-              <strong>{language}</strong>
+              <strong>{advisoryResponse ? "Connected to backend" : language}</strong>
             </div>
             <div className="confidence-pill">{advisory.confidence} confidence</div>
             <h2>{advisory.title}</h2>
             <p>{advisory.summary}</p>
             <div className="recommendations">
-              <div>
-                <span>Next action</span>
-                <strong>Upload image and verify symptoms</strong>
-              </div>
-              <div>
-                <span>Market signal</span>
-                <strong>Hold for 2-3 days if storage is available</strong>
-              </div>
-              <div>
-                <span>Weather risk</span>
-                <strong>High humidity tomorrow evening</strong>
-              </div>
+              {recommendations.map((recommendation) => (
+                <div key={recommendation.title}>
+                  <span>{recommendation.title}</span>
+                  <strong>{recommendation.detail}</strong>
+                  {recommendation.priority && <small>{recommendation.priority} priority</small>}
+                </div>
+              ))}
             </div>
+            {advisoryResponse && (
+              <div className="agent-results">
+                <span>Agent responses from FastAPI</span>
+                {advisoryResponse.agent_results.map((result) => (
+                  <article key={result.agent}>
+                    <strong>{result.agent}</strong>
+                    <p>{result.summary}</p>
+                    <small>{Math.round(result.confidence * 100)}% confidence</small>
+                  </article>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>

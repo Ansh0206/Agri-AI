@@ -403,6 +403,34 @@ textarea {
   font-weight: 700;
 }
 
+.generate-button {
+  width: 100%;
+  min-height: 50px;
+  margin-top: 16px;
+  border: 0;
+  border-radius: 8px;
+  color: #ffffff;
+  background: #1e6b3e;
+  box-shadow: 0 12px 26px rgba(30, 107, 62, 0.18);
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.generate-button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.error-message {
+  margin: 12px 0 0;
+  border-radius: 8px;
+  padding: 12px;
+  color: #8c2730;
+  background: #fff0f1;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
 .result-panel {
   position: relative;
   overflow: hidden;
@@ -453,6 +481,50 @@ textarea {
   display: block;
   margin-top: 6px;
   color: #203425;
+}
+
+.recommendations small {
+  display: block;
+  margin-top: 10px;
+  color: #657367;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.agent-results {
+  display: grid;
+  gap: 10px;
+  margin-top: 22px;
+  border-top: 1px solid rgba(35, 73, 47, 0.12);
+  padding-top: 18px;
+}
+
+.agent-results > span {
+  color: #2f7a47;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.agent-results article {
+  border: 1px solid rgba(35, 73, 47, 0.12);
+  border-radius: 8px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.agent-results article strong {
+  color: #17221a;
+}
+
+.agent-results article p {
+  margin: 8px 0;
+  color: #526257;
+}
+
+.agent-results article small {
+  color: #657367;
+  font-weight: 800;
 }
 
 .section-title {
