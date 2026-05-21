@@ -1,8 +1,9 @@
-from fastapi import FastAPI
+from fastapi import File, Form, HTTPException, UploadFile, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from orchestrator import create_advisory
-from schemas import AdvisoryRequest, AdvisoryResponse
+from schemas import AdvisoryRequest, AdvisoryResponse, DiseaseAnalysisResponse
+from services.disease_agent import analyze_crop_image
 
 
 app = FastAPI(
@@ -92,3 +93,22 @@ def list_agents() -> dict[str, list[dict[str, str]]]:
 def advisory(request: AdvisoryRequest) -> AdvisoryResponse:
     return create_advisory(request)
 
+
+@app.post("/disease/analyze", response_model=DiseaseAnalysisResponse)
+async def analyze_disease_image(
+    crop: str = Form(default="Tomato"),
+    image: UploadFile = File(...),
+) -> DiseaseAnalysisResponse:
+    if image.content_type and not image.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Please upload an image file.")
+
+    image_bytes = await image.read()
+    if not image_bytes:
+        raise HTTPException(status_code=400, detail="Uploaded image is empty.")
+
+    return analyze_crop_image(
+        crop=crop,
+        filename=image.filename or "crop-image",
+        content_type=image.content_type,
+        image_size=len(image_bytes),
+    )

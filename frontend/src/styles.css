@@ -380,6 +380,19 @@ textarea {
   border-radius: 8px;
   background: rgba(30, 107, 62, 0.06);
   text-align: center;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.upload-box input {
+  display: none;
+}
+
+.upload-box img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .upload-box span {
@@ -404,7 +417,8 @@ textarea {
   font-weight: 700;
 }
 
-.generate-button {
+.generate-button,
+.secondary-button {
   width: 100%;
   min-height: 50px;
   margin-top: 16px;
@@ -417,7 +431,16 @@ textarea {
   font-weight: 900;
 }
 
-.generate-button:disabled {
+.secondary-button {
+  margin-top: 12px;
+  color: #1e6b3e;
+  border: 1px solid rgba(30, 107, 62, 0.26);
+  background: #eff8eb;
+  box-shadow: none;
+}
+
+.generate-button:disabled,
+.secondary-button:disabled {
   cursor: wait;
   opacity: 0.72;
 }
@@ -430,6 +453,60 @@ textarea {
   background: #fff0f1;
   font-weight: 800;
   line-height: 1.5;
+}
+
+.disease-card {
+  margin-top: 14px;
+  border: 1px solid rgba(30, 107, 62, 0.18);
+  border-radius: 8px;
+  padding: 16px;
+  background: #f7fbf2;
+}
+
+.disease-card > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.disease-card span {
+  color: #2f7a47;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.disease-card h3 {
+  margin: 16px 0 8px;
+  color: #17221a;
+}
+
+.disease-card p {
+  color: #526257;
+  line-height: 1.55;
+}
+
+.disease-lists {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.disease-lists section {
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.disease-lists ul {
+  display: grid;
+  gap: 8px;
+  padding-left: 18px;
+  margin: 10px 0 0;
+  color: #4e5f53;
+  line-height: 1.45;
 }
 
 .result-panel {
@@ -777,6 +854,7 @@ textarea {
   .flow,
   .timeline ol,
   .recommendations,
+  .disease-lists,
   .form-grid {
     grid-template-columns: 1fr;
   }

@@ -32,3 +32,14 @@ class AdvisoryResponse(BaseModel):
     recommendations: list[Recommendation]
     agent_results: list[AgentResult]
 
+
+class DiseaseAnalysisResponse(BaseModel):
+    crop: str
+    filename: str
+    disease: str
+    confidence: float
+    severity: Literal["low", "medium", "high"]
+    symptoms: list[str]
+    treatment: list[str]
+    prevention: list[str]
+    note: str

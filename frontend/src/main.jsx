@@ -102,9 +102,14 @@ function App() {
   const [district, setDistrict] = useState("Nashik");
   const [language, setLanguage] = useState("English");
   const [question, setQuestion] = useState("My tomato leaves have yellow spots. What should I do?");
+  const [cropImage, setCropImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+  const [diseaseResult, setDiseaseResult] = useState(null);
   const [advisoryResponse, setAdvisoryResponse] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
   const [error, setError] = useState("");
+  const [imageError, setImageError] = useState("");
 
   const fallbackAdvisory = useMemo(() => {
     const crop = selectedCrop.toLowerCase();
@@ -146,6 +151,21 @@ function App() {
 
   const completedAgents = new Set(advisoryResponse?.agent_results.map((result) => result.agent) ?? []);
 
+  function handleImageChange(event) {
+    const file = event.target.files?.[0];
+    setDiseaseResult(null);
+    setImageError("");
+
+    if (!file) {
+      setCropImage(null);
+      setImagePreview("");
+      return;
+    }
+
+    setCropImage(file);
+    setImagePreview(URL.createObjectURL(file));
+  }
+
   async function generateAdvisory() {
     setIsLoading(true);
     setError("");
@@ -178,6 +198,42 @@ function App() {
       );
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function analyzeImage() {
+    if (!cropImage) {
+      setImageError("Please select a crop image first.");
+      return;
+    }
+
+    setIsAnalyzingImage(true);
+    setImageError("");
+
+    try {
+      const formData = new FormData();
+      formData.append("crop", selectedCrop);
+      formData.append("image", cropImage);
+
+      const response = await fetch("http://127.0.0.1:8000/disease/analyze", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Disease endpoint returned an error. Check FastAPI terminal.");
+      }
+
+      const data = await response.json();
+      setDiseaseResult(data);
+    } catch (apiError) {
+      setImageError(
+        apiError instanceof Error
+          ? apiError.message
+          : "Could not analyze image. Make sure FastAPI is running on port 8000.",
+      );
+    } finally {
+      setIsAnalyzingImage(false);
     }
   }
 
@@ -294,11 +350,50 @@ function App() {
               Farmer question
               <textarea value={question} onChange={(event) => setQuestion(event.target.value)} />
             </label>
-            <div className="upload-box">
-              <span>+</span>
-              <p>Upload crop image for disease detection</p>
-              <small>JPG, PNG, or phone camera image</small>
-            </div>
+            <label className="upload-box">
+              <input type="file" accept="image/*" onChange={handleImageChange} />
+              {imagePreview ? (
+                <img src={imagePreview} alt="Selected crop preview" />
+              ) : (
+                <>
+                  <span>+</span>
+                  <p>Upload crop image for disease detection</p>
+                  <small>JPG, PNG, or phone camera image</small>
+                </>
+              )}
+            </label>
+            <button className="secondary-button" type="button" onClick={analyzeImage} disabled={isAnalyzingImage}>
+              {isAnalyzingImage ? "Analyzing Image..." : "Analyze Crop Image"}
+            </button>
+            {imageError && <p className="error-message">{imageError}</p>}
+            {diseaseResult && (
+              <div className="disease-card">
+                <div>
+                  <span>Disease Agent Result</span>
+                  <strong>{Math.round(diseaseResult.confidence * 100)}% confidence</strong>
+                </div>
+                <h3>{diseaseResult.disease}</h3>
+                <p>{diseaseResult.note}</p>
+                <div className="disease-lists">
+                  <section>
+                    <span>Symptoms</span>
+                    <ul>
+                      {diseaseResult.symptoms.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </section>
+                  <section>
+                    <span>Treatment</span>
+                    <ul>
+                      {diseaseResult.treatment.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </section>
+                </div>
+              </div>
+            )}
             <button className="generate-button" type="button" onClick={generateAdvisory} disabled={isLoading}>
               {isLoading ? "Calling FastAPI..." : "Generate Advisory"}
             </button>
