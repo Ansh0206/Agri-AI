@@ -61,3 +61,26 @@ class WeatherRiskResponse(BaseModel):
     disease_pressure: str
     advice: str
     next_24_hours: list[str]
+
+
+class MarketPriceRequest(BaseModel):
+    crop: str = Field(default="Tomato", min_length=2, max_length=50)
+    district: str = Field(default="Nashik", min_length=2, max_length=80)
+
+
+class PricePoint(BaseModel):
+    label: str
+    price: int
+
+
+class MarketPriceResponse(BaseModel):
+    crop: str
+    district: str
+    mandi: str
+    today_price: int
+    yesterday_price: int
+    unit: str
+    trend: Literal["rising", "stable", "falling"]
+    change_percent: float
+    advice: str
+    price_history: list[PricePoint]

@@ -456,7 +456,8 @@ textarea {
 }
 
 .disease-card,
-.weather-widget {
+.weather-widget,
+.market-widget {
   margin-top: 14px;
   border: 1px solid rgba(30, 107, 62, 0.18);
   border-radius: 8px;
@@ -469,8 +470,14 @@ textarea {
   border-color: rgba(42, 120, 182, 0.2);
 }
 
+.market-widget {
+  background: #fff8eb;
+  border-color: rgba(210, 138, 29, 0.26);
+}
+
 .disease-card > div:first-child,
-.weather-widget > div:first-child {
+.weather-widget > div:first-child,
+.market-widget > div:first-child {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -478,7 +485,8 @@ textarea {
 }
 
 .disease-card span,
-.weather-widget span {
+.weather-widget span,
+.market-widget span {
   color: #2f7a47;
   font-size: 0.78rem;
   font-weight: 900;
@@ -489,26 +497,90 @@ textarea {
   color: #2a78b6;
 }
 
+.market-widget span {
+  color: #a46812;
+}
+
 .disease-card h3 {
   margin: 16px 0 8px;
   color: #17221a;
 }
 
 .disease-card p,
-.weather-widget p {
+.weather-widget p,
+.market-widget p {
   color: #526257;
   line-height: 1.55;
 }
 
-.weather-widget p {
+.weather-widget p,
+.market-widget p {
   margin: 14px 0 8px;
 }
 
-.weather-widget > small {
+.weather-widget > small,
+.market-widget > small {
   display: block;
   color: #354a3a;
   font-weight: 800;
   line-height: 1.5;
+}
+
+.market-price-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.market-price-row div {
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.market-price-row strong {
+  display: block;
+  margin-top: 5px;
+  color: #17221a;
+  font-size: 1.25rem;
+}
+
+.market-price-row small {
+  color: #69746b;
+  font-weight: 800;
+}
+
+.price-bars {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  align-items: end;
+  min-height: 132px;
+  margin: 16px 0 14px;
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.price-bars article {
+  display: grid;
+  min-height: 105px;
+  align-items: end;
+  gap: 8px;
+  text-align: center;
+}
+
+.price-bars div {
+  width: 100%;
+  border-radius: 6px 6px 2px 2px;
+  background: linear-gradient(180deg, #d28a1d, #915a0e);
+}
+
+.price-bars span {
+  color: #6b5b41;
+  font-size: 0.68rem;
+  text-transform: none;
 }
 
 .weather-metrics {
@@ -899,6 +971,7 @@ textarea {
   .recommendations,
   .disease-lists,
   .weather-metrics,
+  .market-price-row,
   .form-grid {
     grid-template-columns: 1fr;
   }

@@ -2,8 +2,17 @@ from fastapi import File, Form, HTTPException, UploadFile, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from orchestrator import create_advisory
-from schemas import AdvisoryRequest, AdvisoryResponse, DiseaseAnalysisResponse, WeatherRiskRequest, WeatherRiskResponse
+from schemas import (
+    AdvisoryRequest,
+    AdvisoryResponse,
+    DiseaseAnalysisResponse,
+    MarketPriceRequest,
+    MarketPriceResponse,
+    WeatherRiskRequest,
+    WeatherRiskResponse,
+)
 from services.disease_agent import analyze_crop_image
+from services.market_agent import analyze_market_price
 from services.weather_agent import analyze_weather_risk
 
 
@@ -118,3 +127,8 @@ async def analyze_disease_image(
 @app.post("/weather/risk", response_model=WeatherRiskResponse)
 def weather_risk(request: WeatherRiskRequest) -> WeatherRiskResponse:
     return analyze_weather_risk(crop=request.crop, district=request.district)
+
+
+@app.post("/market/prices", response_model=MarketPriceResponse)
+def market_prices(request: MarketPriceRequest) -> MarketPriceResponse:
+    return analyze_market_price(crop=request.crop, district=request.district)

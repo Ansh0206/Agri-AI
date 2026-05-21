@@ -106,13 +106,16 @@ function App() {
   const [imagePreview, setImagePreview] = useState("");
   const [diseaseResult, setDiseaseResult] = useState(null);
   const [weatherRisk, setWeatherRisk] = useState(null);
+  const [marketPrice, setMarketPrice] = useState(null);
   const [advisoryResponse, setAdvisoryResponse] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
   const [isCheckingWeather, setIsCheckingWeather] = useState(false);
+  const [isCheckingMarket, setIsCheckingMarket] = useState(false);
   const [error, setError] = useState("");
   const [imageError, setImageError] = useState("");
   const [weatherError, setWeatherError] = useState("");
+  const [marketError, setMarketError] = useState("");
 
   const fallbackAdvisory = useMemo(() => {
     const crop = selectedCrop.toLowerCase();
@@ -270,6 +273,39 @@ function App() {
       );
     } finally {
       setIsCheckingWeather(false);
+    }
+  }
+
+  async function checkMarketPrice() {
+    setIsCheckingMarket(true);
+    setMarketError("");
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/market/prices", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          crop: selectedCrop,
+          district,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Market endpoint returned an error. Check FastAPI terminal.");
+      }
+
+      const data = await response.json();
+      setMarketPrice(data);
+    } catch (apiError) {
+      setMarketError(
+        apiError instanceof Error
+          ? apiError.message
+          : "Could not check market price. Make sure FastAPI is running on port 8000.",
+      );
+    } finally {
+      setIsCheckingMarket(false);
     }
   }
 
@@ -440,7 +476,7 @@ function App() {
                   <div className="weather-metrics">
                     <article>
                       <span>Temp</span>
-                      <strong>{weatherRisk.temperature_c}°C</strong>
+                      <strong>{weatherRisk.temperature_c} C</strong>
                     </article>
                     <article>
                       <span>Humidity</span>
@@ -461,6 +497,47 @@ function App() {
                 {isCheckingWeather ? "Checking Weather..." : "Check Weather Risk"}
               </button>
               {weatherError && <p className="error-message">{weatherError}</p>}
+            </div>
+            <div className="market-widget">
+              <div>
+                <span>Market Agent</span>
+                <strong>{marketPrice ? marketPrice.trend : "Not checked"}</strong>
+              </div>
+              {marketPrice ? (
+                <>
+                  <div className="market-price-row">
+                    <div>
+                      <span>Today</span>
+                      <strong>Rs {marketPrice.today_price}</strong>
+                      <small>{marketPrice.unit}</small>
+                    </div>
+                    <div>
+                      <span>Change</span>
+                      <strong>{marketPrice.change_percent > 0 ? "+" : ""}{marketPrice.change_percent}%</strong>
+                      <small>vs yesterday</small>
+                    </div>
+                  </div>
+                  <p>{marketPrice.mandi}</p>
+                  <div className="price-bars">
+                    {marketPrice.price_history.map((point) => {
+                      const maxPrice = Math.max(...marketPrice.price_history.map((item) => item.price));
+                      return (
+                        <article key={point.label}>
+                          <div style={{ height: `${Math.max(22, (point.price / maxPrice) * 86)}px` }} />
+                          <span>{point.label}</span>
+                        </article>
+                      );
+                    })}
+                  </div>
+                  <small>{marketPrice.advice}</small>
+                </>
+              ) : (
+                <p>Check mandi trend to decide whether to sell now or wait for a better price window.</p>
+              )}
+              <button className="secondary-button" type="button" onClick={checkMarketPrice} disabled={isCheckingMarket}>
+                {isCheckingMarket ? "Checking Market..." : "Check Market Price"}
+              </button>
+              {marketError && <p className="error-message">{marketError}</p>}
             </div>
             <button className="generate-button" type="button" onClick={generateAdvisory} disabled={isLoading}>
               {isLoading ? "Calling FastAPI..." : "Generate Advisory"}
