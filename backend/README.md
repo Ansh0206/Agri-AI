@@ -19,6 +19,7 @@ uvicorn main:app --reload --host 127.0.0.1 --port 8000
 - `GET /agents` available agent modules
 - `POST /advisory` mock orchestrator advisory response
 - `POST /disease/analyze` image upload disease analysis response
+- `POST /weather/risk` district weather risk response
 
 ## Backend Structure
 

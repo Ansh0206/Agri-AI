@@ -43,3 +43,21 @@ class DiseaseAnalysisResponse(BaseModel):
     treatment: list[str]
     prevention: list[str]
     note: str
+
+
+class WeatherRiskRequest(BaseModel):
+    crop: str = Field(default="Tomato", min_length=2, max_length=50)
+    district: str = Field(default="Nashik", min_length=2, max_length=80)
+
+
+class WeatherRiskResponse(BaseModel):
+    crop: str
+    district: str
+    temperature_c: int
+    humidity_percent: int
+    rain_chance_percent: int
+    wind_kmph: int
+    risk_level: Literal["low", "medium", "high"]
+    disease_pressure: str
+    advice: str
+    next_24_hours: list[str]

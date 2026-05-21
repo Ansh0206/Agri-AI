@@ -105,11 +105,14 @@ function App() {
   const [cropImage, setCropImage] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
   const [diseaseResult, setDiseaseResult] = useState(null);
+  const [weatherRisk, setWeatherRisk] = useState(null);
   const [advisoryResponse, setAdvisoryResponse] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
+  const [isCheckingWeather, setIsCheckingWeather] = useState(false);
   const [error, setError] = useState("");
   const [imageError, setImageError] = useState("");
+  const [weatherError, setWeatherError] = useState("");
 
   const fallbackAdvisory = useMemo(() => {
     const crop = selectedCrop.toLowerCase();
@@ -234,6 +237,39 @@ function App() {
       );
     } finally {
       setIsAnalyzingImage(false);
+    }
+  }
+
+  async function checkWeatherRisk() {
+    setIsCheckingWeather(true);
+    setWeatherError("");
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/weather/risk", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          crop: selectedCrop,
+          district,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Weather endpoint returned an error. Check FastAPI terminal.");
+      }
+
+      const data = await response.json();
+      setWeatherRisk(data);
+    } catch (apiError) {
+      setWeatherError(
+        apiError instanceof Error
+          ? apiError.message
+          : "Could not check weather risk. Make sure FastAPI is running on port 8000.",
+      );
+    } finally {
+      setIsCheckingWeather(false);
     }
   }
 
@@ -394,6 +430,38 @@ function App() {
                 </div>
               </div>
             )}
+            <div className="weather-widget">
+              <div>
+                <span>Weather Agent</span>
+                <strong>{weatherRisk ? `${weatherRisk.risk_level} risk` : "Not checked"}</strong>
+              </div>
+              {weatherRisk ? (
+                <>
+                  <div className="weather-metrics">
+                    <article>
+                      <span>Temp</span>
+                      <strong>{weatherRisk.temperature_c}°C</strong>
+                    </article>
+                    <article>
+                      <span>Humidity</span>
+                      <strong>{weatherRisk.humidity_percent}%</strong>
+                    </article>
+                    <article>
+                      <span>Rain</span>
+                      <strong>{weatherRisk.rain_chance_percent}%</strong>
+                    </article>
+                  </div>
+                  <p>{weatherRisk.disease_pressure}</p>
+                  <small>{weatherRisk.advice}</small>
+                </>
+              ) : (
+                <p>Check district weather to estimate disease pressure before spraying or harvesting.</p>
+              )}
+              <button className="secondary-button" type="button" onClick={checkWeatherRisk} disabled={isCheckingWeather}>
+                {isCheckingWeather ? "Checking Weather..." : "Check Weather Risk"}
+              </button>
+              {weatherError && <p className="error-message">{weatherError}</p>}
+            </div>
             <button className="generate-button" type="button" onClick={generateAdvisory} disabled={isLoading}>
               {isLoading ? "Calling FastAPI..." : "Generate Advisory"}
             </button>

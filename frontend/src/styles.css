@@ -455,7 +455,8 @@ textarea {
   line-height: 1.5;
 }
 
-.disease-card {
+.disease-card,
+.weather-widget {
   margin-top: 14px;
   border: 1px solid rgba(30, 107, 62, 0.18);
   border-radius: 8px;
@@ -463,18 +464,29 @@ textarea {
   background: #f7fbf2;
 }
 
-.disease-card > div:first-child {
+.weather-widget {
+  background: #f1f7fb;
+  border-color: rgba(42, 120, 182, 0.2);
+}
+
+.disease-card > div:first-child,
+.weather-widget > div:first-child {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
 
-.disease-card span {
+.disease-card span,
+.weather-widget span {
   color: #2f7a47;
   font-size: 0.78rem;
   font-weight: 900;
   text-transform: uppercase;
+}
+
+.weather-widget span {
+  color: #2a78b6;
 }
 
 .disease-card h3 {
@@ -482,9 +494,40 @@ textarea {
   color: #17221a;
 }
 
-.disease-card p {
+.disease-card p,
+.weather-widget p {
   color: #526257;
   line-height: 1.55;
+}
+
+.weather-widget p {
+  margin: 14px 0 8px;
+}
+
+.weather-widget > small {
+  display: block;
+  color: #354a3a;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.weather-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.weather-metrics article {
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.weather-metrics strong {
+  display: block;
+  margin-top: 5px;
+  color: #17221a;
 }
 
 .disease-lists {
@@ -855,6 +898,7 @@ textarea {
   .timeline ol,
   .recommendations,
   .disease-lists,
+  .weather-metrics,
   .form-grid {
     grid-template-columns: 1fr;
   }
